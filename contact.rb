@@ -56,10 +56,6 @@ class Contact
 
       all_contacts[id - 1]
 
-      # my_contact = all_contacts.Select do |contact|
-      #   contact.include?(id)
-      # end
-
 
       # CSV.shift()
 
@@ -75,9 +71,9 @@ class Contact
       end
 
       found_contacts = all_contacts.select do |word|
-        word = term
+        word.name.include?(term) || word.email.include?(term)
       end
-      
+
       found_contacts
     end
 

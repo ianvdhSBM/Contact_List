@@ -4,6 +4,7 @@ require_relative 'contact'
 class ContactList
 
   # TODO: Implement user interaction. This should be the only file where you use `puts` and `gets`.
+  
   # puts "\nWhat would you like to do?\n\n"
 
   # puts "new\t- Create a new contact"
@@ -42,9 +43,12 @@ class ContactList
     puts "Contact e-mail: #{contact.email}"
 
   when command == "search"
-    contact = Contact.search(ARGV[1])
+    contact = Contact.search(ARGV[1].to_s)
 
-    puts "#{contact}"
+    contact.each_with_index do |item, index|
+      puts "#{item.name} (#{item.email})"
+    end 
+
   end
 
 end
