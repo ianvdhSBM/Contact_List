@@ -15,7 +15,15 @@ class ContactList
 
   case 
   when command == "new"
+    puts "Contact name?"
+    name = STDIN.gets.chomp
+
+    puts "Contact email?"
+    email = STDIN.gets.chomp
+
     Contact.create(name, email)
+
+    puts "New contact created: #{name}, #{email}"
 
   when command == "list"
     all_contacts = Contact.all
@@ -28,10 +36,15 @@ class ContactList
     puts "#{all_contacts.length} records found"
 
   when command == "show"
-    Contact.find(ARGV[1])
+    contact = Contact.find(ARGV[1].to_i)
+
+    puts "Contact name: \t#{contact.name}"
+    puts "Contact e-mail: #{contact.email}"
 
   when command == "search"
-    Contact.search
+    contact = Contact.search(ARGV[1])
+
+    puts "#{contact}"
   end
 
 end

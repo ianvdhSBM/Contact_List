@@ -38,18 +38,52 @@ class Contact
     # Creates a new contact, adding it to the database, returning the new contact.
     def create(name, email)
       # TODO: Instantiate a Contact, add its data to the 'contacts.csv' file, and return it.
+      
+      CSV.open('contacts.csv', 'a') do |csv|
+          csv << [name, email]
+      end
+
     end
 
     # Returns the contact with the specified id. If no contact has the id, returns nil.
     def find(id)
       # TODO: Find the Contact in the 'contacts.csv' file with the matching id.
+      all_contacts = []
+
+      CSV.foreach('contacts.csv') do |row|
+        all_contacts << Contact.new(row[0], row[1])
+      end
+
+      all_contacts[id - 1]
+
+      # my_contact = all_contacts.Select do |contact|
+      #   contact.include?(id)
+      # end
+
+
+      # CSV.shift()
+
     end
 
     # Returns an array of contacts who match the given term.
     def search(term)
       # TODO: Select the Contact instances from the 'contacts.csv' file whose name or email attributes contain the search term.
+      all_contacts = []
+
+      CSV.foreach('contacts.csv') do |row|
+        all_contacts << Contact.new(row[0], row[1])
+      end
+
+      found_contacts = all_contacts.select do |word|
+        word = term
+      end
+      
+      found_contacts
     end
 
   end
 
 end
+
+
+
