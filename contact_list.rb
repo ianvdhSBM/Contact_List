@@ -14,10 +14,7 @@ class ContactList
   # puts "show\t- Show a contact"
   # puts "search\t- Search contacts"
 
-  command = ARGV[0]
-
-  case 
-  when command == "new"
+  def new
     puts "Contact name?"
     name = STDIN.gets.chomp
 
@@ -27,25 +24,29 @@ class ContactList
     Contact.create(name, email)
 
     puts "New contact created: #{name}, #{email}"
+  end
 
-  when command == "update"
+  def update(id)
     puts "What is the new name?"
     new_name = STDIN.gets.chomp
 
     puts "What is the new email address?"
     new_email = STDIN.gets.chomp
 
-    contact = Contact.update(ARGV[1], new_name, new_email)
+    contact = Contact.update(new_name, new_email, id)
 
     puts "Contact updated: #{contact.name}, #{contact.email}"
+  end
 
-  when command == "destroy"
-    Contact.destroy(ARGV[1])
+  def destroy(id)
+    contact = Contact.find(id)
 
-    puts "Contact deleted"
+    contact.destroy
 
-  when command == "list"
+    puts "#{contact.name} deleted"
+  end
 
+  def all
     all_contacts = Contact.all
 
     all_contacts.each do |contact|
@@ -54,20 +55,46 @@ class ContactList
 
     puts "---"
     puts "#{all_contacts.length} records found"
+  end
 
-  when command == "show"
-    contact = Contact.find(ARGV[1])
+  def show(id)
+    contact = Contact.find(id)
 
     puts "Contact name: \t#{contact.name}"
     puts "Contact e-mail: #{contact.email}"
+  end
 
-  when command == "search"
-    contact = Contact.search(ARGV[1].to_s)
+  def search(id)
+    contact = Contact.search(id)
 
     contact.each do |item|
       puts "#{item.id}. #{item.name} (#{item.email})"
-    end 
-
+    end
   end
 
 end
+
+contact_list = ContactList.new
+
+command = ARGV[0]
+
+  case 
+  when command == "new"
+    contact_list.new
+
+  when command == "update"
+    contact_list.update(ARGV[1])
+
+  when command == "destroy"
+    contact_list.destroy(ARGV[1])
+
+  when command == "list"
+    contact_list.all
+
+  when command == "show"
+    contact_list.show(ARGV[1])
+
+  when command == "search"
+    contact_list.search(ARGV[1])
+    
+  end
