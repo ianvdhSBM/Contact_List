@@ -1,80 +1,116 @@
-require 'csv'
+require 'pry'
+require 'pg'
 
 # Represents a person in an address book.
 class Contact
 
+  attr_reader :id
+
   attr_accessor :name, :email
 
-  def initialize(name, email)
-    # TODO: Assign parameter values to instance variables.
+  def initialize(name, email, id=nil)
+    @id = id
     @name = name
     @email = email
   end
 
-  # def to_s
-  #   "hello"
-  # end
 
   # Provides functionality for managing a list of Contacts in a database.
   class << self
 
+    def connection
+      @@connections ||= PG.connect(
+        host: 'localhost',
+        dbname: 'contacts',
+        user: 'development',
+        password: 'development'
+      )
+    end
+
     # Returns an Array of Contacts loaded from the database.
     def all
-      # TODO: Return an Array of Contact instances made from the data in 'contacts.csv'.
-      all_contacts = []
-      CSV.foreach('contacts.csv') do |row|
-        all_contacts << Contact.new(row[0], row[1])
+      contacts = []
 
-        # all_contacts << "#{$.}. #{row[0]}: (#{row[1]})"
-        # puts all_contacts
-        # puts "#{$.}. #{row[0]}: (#{row[1]})"
+      results = connection.exec('SELECT * FROM contacts ORDER BY id;')
+      
+      results.each do |row|
+        contacts << Contact.new(
+          row['name'],
+          row['email'],
+          row['id']
+        )
       end
 
-      # all_contacts << "---"
-      # all_contacts << "#{all_contacts.length - 1} records found"
-      all_contacts
+      contacts
+    end
+
+    def save(contact)
+      if contact.id == nil
+        result = Contact.connection.exec_params("INSERT INTO contacts (name, email) VALUES ($1, $2);", [contact.name, contact.email])
+      else
+        result = Contact.connection.exec_params("UPDATE contacts SET name = $1, email = $2 WHERE id = $3;",[contact.name, contact.email, contact.id])
+      end
     end
 
     # Creates a new contact, adding it to the database, returning the new contact.
     def create(name, email)
-      # TODO: Instantiate a Contact, add its data to the 'contacts.csv' file, and return it.
+      new_contact = Contact.new(name, email)
       
-      CSV.open('contacts.csv', 'a') do |csv|
-          csv << [name, email]
-      end
+      save(new_contact)
+    end
+
+    def update(id, new_name, new_email)
+
+      contact = Contact.find(id)
+
+      contact.name = new_name
+      contact.email = new_email
+
+      contact.save
+
+      # save(contact)
+
+      contact
+    end
+
+    def destroy(id)
+      contact = Contact.find(id)
+
+      result = Contact.connection.exec_params("DELETE FROM contacts WHERE id = $1;", [id])
 
     end
 
     # Returns the contact with the specified id. If no contact has the id, returns nil.
     def find(id)
-      # TODO: Find the Contact in the 'contacts.csv' file with the matching id.
-      all_contacts = []
+      result = connection.exec_params("SELECT id, name, email FROM contacts WHERE id = $1;", [id])
 
-      CSV.foreach('contacts.csv') do |row|
-        all_contacts << Contact.new(row[0], row[1])
+      if row = result.first
+         Contact.new(
+          row['name'],
+          row['email'],
+          row['id']
+        )
+      else
+        nil
       end
-
-      all_contacts[id - 1]
-
-
-      # CSV.shift()
 
     end
 
     # Returns an array of contacts who match the given term.
     def search(term)
-      # TODO: Select the Contact instances from the 'contacts.csv' file whose name or email attributes contain the search term.
-      all_contacts = []
-
-      CSV.foreach('contacts.csv') do |row|
-        all_contacts << Contact.new(row[0], row[1])
+      contacts = []
+          
+      results = connection.exec_params("SELECT * FROM contacts WHERE name ILIKE ($1) OR email ILIKE ($1);", ["%#{term}%"])
+      
+      results.each do |row|
+        contacts << Contact.new(
+          row['name'],
+          row['email'],
+          row['id']
+        )
       end
 
-      found_contacts = all_contacts.select do |word|
-        word.name.include?(term) || word.email.include?(term)
-      end
-
-      found_contacts
+      contacts
     end
 
   end

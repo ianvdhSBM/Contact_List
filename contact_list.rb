@@ -1,8 +1,10 @@
 require_relative 'contact'
+require 'pry'
+
 # require_relative 'contacts.csv'
 # Interfaces between a user and their contact list. Reads from and writes to standard I/O.
 class ContactList
-
+ 
   # TODO: Implement user interaction. This should be the only file where you use `puts` and `gets`.
   
   # puts "\nWhat would you like to do?\n\n"
@@ -26,18 +28,35 @@ class ContactList
 
     puts "New contact created: #{name}, #{email}"
 
+  when command == "update"
+    puts "What is the new name?"
+    new_name = STDIN.gets.chomp
+
+    puts "What is the new email address?"
+    new_email = STDIN.gets.chomp
+
+    contact = Contact.update(ARGV[1], new_name, new_email)
+
+    puts "Contact updated: #{contact.name}, #{contact.email}"
+
+  when command == "destroy"
+    Contact.destroy(ARGV[1])
+
+    puts "Contact deleted"
+
   when command == "list"
+
     all_contacts = Contact.all
 
-    all_contacts.each_with_index do |item, index|
-      puts "#{index + 1}. #{item.name} (#{item.email})"
+    all_contacts.each do |contact|
+      puts "#{contact.id}. #{contact.name} (#{contact.email})"
     end 
 
     puts "---"
     puts "#{all_contacts.length} records found"
 
   when command == "show"
-    contact = Contact.find(ARGV[1].to_i)
+    contact = Contact.find(ARGV[1])
 
     puts "Contact name: \t#{contact.name}"
     puts "Contact e-mail: #{contact.email}"
@@ -45,8 +64,8 @@ class ContactList
   when command == "search"
     contact = Contact.search(ARGV[1].to_s)
 
-    contact.each_with_index do |item, index|
-      puts "#{item.name} (#{item.email})"
+    contact.each do |item|
+      puts "#{item.id}. #{item.name} (#{item.email})"
     end 
 
   end
