@@ -27,14 +27,24 @@ class ContactList
   end
 
   def update(id)
+    contact = Contact.find(id)
+
+    puts "\nCONTACT: #{contact.name} is being updated"
+    puts ""
     puts "What is the new name?"
     new_name = STDIN.gets.chomp
 
     puts "What is the new email address?"
     new_email = STDIN.gets.chomp
 
-    contact = Contact.update(new_name, new_email, id)
+    contact = Contact.find(id)
 
+    contact.name = new_name
+    contact.email = new_email
+
+    contact.save
+
+    puts ""
     puts "Contact updated: #{contact.name}, #{contact.email}"
   end
 

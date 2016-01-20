@@ -66,16 +66,16 @@ class Contact
       new_contact.save
     end
 
-    def update(new_name, new_email, id)
-      contact = Contact.find(id)
+    # def update(new_name, new_email, id)
+    #   contact = Contact.find(id)
 
-      contact.name = new_name
-      contact.email = new_email
+    #   contact.name = new_name
+    #   contact.email = new_email
 
-      contact.save
+    #   contact.save
 
-      contact
-    end
+    #   contact
+    # end
 
     # Returns the contact with the specified id. If no contact has the id, returns nil.
     def find(id)
